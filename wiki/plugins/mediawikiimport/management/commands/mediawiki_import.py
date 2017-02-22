@@ -152,38 +152,37 @@ class Command(BaseCommand):
         # Create article
         article = Article()
 
-        for history_page in page.getHistory()[::-1]:
+        history_page = page.getHistory()[0]
 
-            try:
-                if history_page['user'] in user_matching:
-                    user = get_user_model().objects.get(
-                        pk=user_matching[
-                            history_page['user']])
-                else:
-                    user = get_user_model().objects.get(
-                        username=history_page['user'])
-            except get_user_model().DoesNotExist:
-                user = None
-            except Exception:
-                print("Couldn't find user. Something is weird.")
-                continue
+        try:
+            if history_page['user'] in user_matching:
+                user = get_user_model().objects.get(
+                    pk=user_matching[
+                        history_page['user']])
+            else:
+                user = get_user_model().objects.get(
+                    username=history_page['user'])
+        except get_user_model().DoesNotExist:
+            user = None
+        except Exception:
+            print("Couldn't find user. Something is weird.")
 
-            article_revision = ArticleRevision()
-            '''article_revision.content = pypandoc.convert(
-                history_page['*'],
-                'md',
-                'mediawiki')
-                '''
-            article_revision.content = refactor(page.getWikiText())
-            article_revision.title = title
-            article_revision.user = user
-            article_revision.owner = user
-            article_revision.content = re.sub("\[\[.*(Category|Kategori).*\]\]\n", "", article_revision.content)
+        article_revision = ArticleRevision()
+        '''article_revision.content = pypandoc.convert(
+            history_page['*'],
+            'md',
+            'mediawiki')
+            '''
+        article_revision.content = refactor(page.getWikiText())
+        article_revision.title = title
+        article_revision.user = user
+        article_revision.owner = user
+        article_revision.content = re.sub("\[\[.*(Category|Kategori).*\]\]\n", "", article_revision.content)
 
-            article.add_revision(article_revision, save=True)
+        article.add_revision(article_revision, save=True)
 
-            article_revision.created = history_page['timestamp']
-            article_revision.save()
+        article_revision.created = history_page['timestamp']
+        article_revision.save()
 
         # Updated lastest content WITH expended templates
         # TODO ? Do that for history as well ?
@@ -331,7 +330,6 @@ def refactor(s):
     result = re.sub("\*([^ ])", r"* \1", result) # lists
     result = re.sub("'''", "**", result) # emphasis
     result = re.sub("(?<!\[)\[([^ \[]+) ([^\]]+)\](?!\])", r"[\2](\1)", result) # weblinks
-    result = re.sub("{{Boklink\|forfatter=([^|]+)\|tittel=([^}]+)}}", r"[[\1:_\2]]", result) # booklinks, TODO fix
     result = re.sub("\[\[Bilde:(.+\..+)\|(\d+)px\|(.+)\|(.+)\|(.+)\]\]", r"[image:1 align:\3 width:\2]\n\t\5\n", result) # images
     for i in range(6, 1, -1):
         result = re.sub("=" * i + " (.+) " + "=" * i, "#" * i + r" \1", result) # headers
@@ -339,6 +337,7 @@ def refactor(s):
     result = re.sub("<math>(.+?)<\/math>", r"$ \1 $", result) # latex inline
     result = re.sub("\[\[(Kategori|Category).*\]\]", "", result)
     result = re.sub(re.compile("\<del\>(.*)\<\/del\>", re.DOTALL), r"(Utdatert) \1", result)
+    result = re.sub("{{Boklink\|forfatter=([^|]+)\|tittel=([^}]+)}}", r"[*\1*: \2]([\1: \2])", result) # booklinks, TODO fix
 
     # info table
     lines = result.split("\n")
@@ -370,7 +369,7 @@ def refactor(s):
                     fields[0] = fields[0].replace("ov", "Øvinger")
                     fields[0] = fields[0].replace("eksamen", "Eksamen")
                     fields[0] = fields[0].replace("nettside", "Nettside")
-                    fields[1] = re.sub("(https?:\/\/.*)", r"[\1](\1)", fields[1])
+                    fields[1] = re.sub("(?:Nettside \| )(https?:\/\/)?(www\.)?[-øæåØÆÅa-zA-Z0-9@:%._\+~#=]{2,256}\.[øæåØÆÅa-z]{2,6}([-a-zøæåØÆÅA-Z0-9@:%_\+.~#?&\/\/=]*)", r"<\1>", fields[1])
                     infoTable.append((fields[0], fields[1]))
 
                 if "}}" in line:
