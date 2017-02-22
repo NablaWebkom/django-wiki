@@ -80,8 +80,8 @@ class Command(BaseCommand):
 
         result = api.APIRequest(
             site, {
-                #'action': 'query', 'generator': 'allpages'}).query()
-                'action': 'query', 'titles': 'TFY4215 Innføring i kvantefysikk'}).query()
+                'action': 'query', 'generator': 'allpages'}).query()
+                # 'action': 'query', 'titles': 'TFY4215 Innføring i kvantefysikk'}).query()
 
         return listFromQuery(site, result['query']['pages'])
 
@@ -112,8 +112,16 @@ class Command(BaseCommand):
 
 
         # Filter titles, to avoid stranges charaters.
-        title = only_printable(page.title)
-        urltitle = slugify(only_printable(urllib.parse.unquote(page.urltitle))[:50])
+        title = page.title
+        urltitle = title
+        urltitle = urltitle.replace("ø", "o") 
+        urltitle = urltitle.replace("æ", "ae") 
+        urltitle = urltitle.replace("å", "a") 
+        urltitle = urltitle.replace("Ø", "O") 
+        urltitle = urltitle.replace("Æ", "AE") 
+        urltitle = urltitle.replace("Å", "A") 
+        urltitle = only_printable(urltitle)
+        urltitle = slugify(only_printable(urllib.parse.unquote(urltitle))[:50])
 
 
         added = 1
@@ -285,7 +293,7 @@ class Command(BaseCommand):
         site = wikitools.wiki.Wiki(api_url)
         site.login(api_username, api_password)
 
-        pages = self.get_all_pages(wikitools.api, site)
+        pages = self.get_all_pages(wikitools.api, site)[:10]
 
         current_site = Site.objects.get_current()
         url_root = URLPath.root()
@@ -337,7 +345,7 @@ def refactor(s):
     result = re.sub("<math>(.+?)<\/math>", r"$ \1 $", result) # latex inline
     result = re.sub("\[\[(Kategori|Category).*\]\]", "", result)
     result = re.sub(re.compile("\<del\>(.*)\<\/del\>", re.DOTALL), r"(Utdatert) \1", result)
-    result = re.sub("{{Boklink\|forfatter=([^|]+)\|tittel=([^}]+)}}", r"[*\1*: \2]([\1: \2])", result) # booklinks, TODO fix
+    result = re.sub("{{Boklink\|forfatter=([^|]+)\|tittel=([^}]+)}}", r"[\1: *\2*]([\1: \2])", result) # booklinks, TODO fix
 
     # info table
     lines = result.split("\n")
