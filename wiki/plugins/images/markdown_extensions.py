@@ -8,7 +8,7 @@ from django.template.loader import render_to_string
 from wiki.plugins.images import models
 
 IMAGE_RE = re.compile(
-    r'.*(\[image\:(?P<id>\d+)(\s+align\:(?P<align>right|left))?\s*\]).*',
+    r'.*(\[image\:(?P<id>\d+)((\s+align\:(?P<align>right|left))|(\s+width\:(?P<width>)\d+)(px)?)+\s*\]).*',
     re.IGNORECASE)
 
 
@@ -50,6 +50,7 @@ class ImagePreprocessor(markdown.preprocessors.Preprocessor):
                 previous_line_was_image = True
                 image_id = m.group('id').strip()
                 alignment = m.group('align')
+                width = m.group('width')
                 try:
                     image = models.Image.objects.get(
                         article=self.markdown.article,
@@ -73,6 +74,7 @@ class ImagePreprocessor(markdown.preprocessors.Preprocessor):
                             'image': image,
                             'caption': caption_placeholder,
                             'align': alignment,
+                            'width': width,
                         })
                     html_before, html_after = html.split(caption_placeholder)
                     placeholder_before = self.markdown.htmlStash.store(

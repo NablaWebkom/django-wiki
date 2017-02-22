@@ -6,7 +6,14 @@
 function insert_image(image_id) {
   align=prompt('Enter an alignment. \'left\' or \'right\':', 'right');
   caption=prompt('Enter a caption text. You may use markdown. You can edit the text after...');
-  imagetag = '\n[image:'+image_id+' align:'+align+']';
+  width=prompt('Enter a width. Use "default" for default width.', 'default');
+  if (width == 'default'){
+	  width = '';
+  }
+  else {
+	width = ' width:' + width;
+  }
+  imagetag = '\n[image:'+image_id+' align:'+align+width+']';
   if (! caption == '') {
     $('#id_content').insertAtCaret(imagetag+'\n    '+caption+'\n\n');
   } else {
