@@ -333,7 +333,9 @@ def refactor(s):
                 for pair in pairs:
                     if "=" not in pair:
                         continue
-                    fields = pair.split("=")
+                    rowName= re.search(r"^[a-zA-ZøæåØÆÅ ]+", pair).group(0)
+                    fields = re.split(r"^[a-zA-ZøæåØÆÅ ]+=", pair)
+                    fields[0] = rowName
                     if fields[0] == "fork":
                         continue
 
