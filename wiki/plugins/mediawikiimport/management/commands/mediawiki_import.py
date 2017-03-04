@@ -314,7 +314,6 @@ def refactor(s):
     result = re.sub("<math>(.+?)<\/math>", r"$ \1 $", result) # latex inline
     result = re.sub("\[\[(Kategori|Category).*\]\]", "", result)
     result = re.sub(re.compile("\<del\>(.*)\<\/del\>", re.DOTALL), r"(Utdatert) \1", result)
-    result = re.sub("\[\[(.*?)\]\]", r"[](wiki:\1)", result)
     result = re.sub("{{Boklink\|forfatter=([^|]+)\|tittel=([^|}]+).*?}}", r"[\1: *\2*](wiki:\1: \2)", result) # booklinks
 
     # info table
