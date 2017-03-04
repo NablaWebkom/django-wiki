@@ -293,7 +293,7 @@ class Command(BaseCommand):
         site = wikitools.wiki.Wiki(api_url)
         site.login(api_username, api_password)
 
-        pages = self.get_all_pages(wikitools.api, site)[:10]
+        pages = self.get_all_pages(wikitools.api, site)
 
         current_site = Site.objects.get_current()
         url_root = URLPath.root()
