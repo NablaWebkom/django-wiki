@@ -386,5 +386,6 @@ def refactor(s):
 
         result = re.sub(re.compile("{{Faginfo.*?}}", re.DOTALL), tableString, result)
     result = re.sub(r"\<br\>", "\n", result)
+    result = re.sub(r"{{Stubb}}", "", result)
 
     return result
