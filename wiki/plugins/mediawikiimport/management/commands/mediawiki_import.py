@@ -330,7 +330,6 @@ class Command(BaseCommand):
                     user_matching,
                     options['replace_existing'])
 
-        self.update_links()
 
 def refactor(s):
     result = s

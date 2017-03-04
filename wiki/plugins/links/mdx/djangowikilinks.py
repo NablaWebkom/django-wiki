@@ -58,7 +58,7 @@ class WikiPathExtension(markdown.Extension):
         self.md = md
 
         # append to end of inline patterns
-        WIKI_RE = r'\[(?P<linkTitle>[^\]]+?)\]\(wiki:(?P<wikiTitle>[a-zA-Z\d\./_-]*?)\)'
+        WIKI_RE = r'\[(?P<linkTitle>[^\]]*?)\]\(wiki:(?P<wikiTitle>[a-zøæåØÆÅA-Z\d\./ _\-:,]*?)\)'
         wikiPathPattern = WikiPath(WIKI_RE, self.config, markdown_instance=md)
         wikiPathPattern.md = md
         md.inlinePatterns.add('djangowikipath', wikiPathPattern, "<reference")
@@ -77,55 +77,31 @@ class WikiPath(markdown.inlinepatterns.Pattern):
             absolute = True
         article_title = article_title.strip("/")
 
-        # Use this to calculate some kind of meaningful path
-        # from the link, regardless of whether or not something can be
-        # looked up
-        path_from_link = ""
-
-        if absolute:
-            base_path = self.config['base_url'][0]
-            path_from_link = os_path.join(base_path, article_title)
-
-            urlpath = None
-            path = path_from_link
-            try:
-                urlpath = models.URLPath.get_by_path(article_title)
-                path = urlpath.get_absolute_url()
-            except models.URLPath.DoesNotExist:
-                pass
+        revisions = models.ArticleRevision.objects.filter(title = article_title)
+        if len(revisions) != 0:
+            revision = revisions[0]
+            slug = ""
+            parents = models.URLPath.objects.filter(article_id = revision.article_id)
+            while len(parents) != 0 and parents[0].slug != None:
+                slug = parents[0].slug + "/" + slug
+                parents = models.URLPath.objects.filter(id = parents[0].parent_id)
+            path = self.config['base_url'][0] + slug
         else:
-            urlpath = models.URLPath.objects.get(article=self.markdown.article)
-            source_components = urlpath.path.strip("/").split("/")
-            # We take the first (self.config['default_level'] - 1) components, so adding
-            # one more component would make a path of length
-            # self.config['default_level']
-            starting_level = max(0, self.config['default_level'][0] - 1)
-            starting_path = "/".join(source_components[: starting_level])
+            path = ""
 
-            path_from_link = os_path.join(starting_path, article_title)
-
-            lookup = models.URLPath.objects.none()
-            if urlpath.parent:
-                lookup = urlpath.parent.get_descendants().filter(
-                    slug=article_title)
-            else:
-                lookup = urlpath.get_descendants().filter(slug=article_title)
-
-            if lookup.count() > 0:
-                urlpath = lookup[0]
-                path = urlpath.get_absolute_url()
-            else:
-                urlpath = None
-                path = self.config['base_url'][0] + path_from_link
-
-        label = m.group('linkTitle')
         a = etree.Element('a')
-        a.set('href', path)
-        if not urlpath:
+        label = m.group('linkTitle')
+        if label == "":
+            label = article_title
+
+        if path == "":
             a.set('class', self.config['html_class'][0] + " linknotfound")
+            a.set('href', path)
+            a.text = label
         else:
+            a.set('href', path)
             a.set('class', self.config['html_class'][0])
-        a.text = label
+            a.text = label
 
         return a
 
