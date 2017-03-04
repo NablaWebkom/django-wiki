@@ -58,17 +58,22 @@ class WikiPathExtension(markdown.Extension):
         self.md = md
 
         # append to end of inline patterns
-        WIKI_RE = r'\[(?P<linkTitle>[^\]]*?)\]\(wiki:(?P<wikiTitle>[a-zøæåØÆÅA-Z\d\./ _\-:,]*?)\)'
-        wikiPathPattern = WikiPath(WIKI_RE, self.config, markdown_instance=md)
-        wikiPathPattern.md = md
-        md.inlinePatterns.add('djangowikipath', wikiPathPattern, "<reference")
+        WIKI_RE_1 = r'\[(?P<linkTitle>[^\]]*?)\]\(wiki:(?P<wikiTitle>[^\)]*?)\)'
+        wikiPathPattern1 = WikiPath(WIKI_RE_1, self.config, False, markdown_instance=md)
+        wikiPathPattern1.md = md
+        md.inlinePatterns.add('djangowikipath', wikiPathPattern1, "<reference")
 
+        WIKI_RE_2 = r'\[\[(?P<wikiTitle>[^\]]*?)\]\]'
+        wikiPathPattern2 = WikiPath(WIKI_RE_2, self.config, True, markdown_instance=md)
+        wikiPathPattern2.md = md
+        md.inlinePatterns.add('djangowikipathshort', wikiPathPattern2, "<reference")
 
 class WikiPath(markdown.inlinepatterns.Pattern):
 
-    def __init__(self, pattern, config, **kwargs):
+    def __init__(self, pattern, config, shorthand, **kwargs):
         markdown.inlinepatterns.Pattern.__init__(self, pattern, **kwargs)
         self.config = config
+        self.shorthand = shorthand
 
     def handleMatch(self, m):
         article_title = m.group('wikiTitle')
@@ -90,7 +95,10 @@ class WikiPath(markdown.inlinepatterns.Pattern):
             path = ""
 
         a = etree.Element('a')
-        label = m.group('linkTitle')
+
+        label = ""
+        if not self.shorthand:
+            label = m.group('linkTitle')
         if label == "":
             label = article_title
 
