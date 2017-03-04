@@ -339,7 +339,7 @@ def refactor(s):
     result = re.sub("(?<!\[)\[([^ \[]+) ([^\]]+)\](?!\])", r"[\2](\1)", result) # weblinks
     result = re.sub("\[\[Bilde:(.+\..+)\|(\d+)px\|(.+)\|(.+)\|(.+)\]\]", r"[image:1 align:\3 width:\2]\n\t\5\n", result) # images
     for i in range(6, 1, -1):
-        result = re.sub("=" * i + " (.+) " + "=" * i, "#" * i + r" \1", result) # headers
+        result = re.sub("=" * i + "(.+)" + "=" * i, "#" * i + r" \1", result) # headers
     result = re.sub(":<math>(.+?)<\/math> ?[,\.]?", r"\n$$ \1 $$\n$~$\n", result) # latex stor
     result = re.sub("<math>(.+?)<\/math>", r"$ \1 $", result) # latex inline
     result = re.sub("\[\[(Kategori|Category).*\]\]", "", result)
