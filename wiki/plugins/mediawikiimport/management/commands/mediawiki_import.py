@@ -348,7 +348,7 @@ def refactor(s):
                     fields[0] = fields[0].replace("nettside", "Nettside")
                     fields[1] = fields[1].replace("<br>", ", ")
                     if fields[0] == "Nettside":
-                        fields[1] = re.sub("((https?:\/\/)?(www\.)?[-øæåØÆÅa-zA-Z0-9@:%._\+~#=]{2,256}\.[øæåØÆÅa-z]{2,6}([-a-zøæåØÆÅA-Z0-9@:%_\+.~#?&\/\/=]*))", r"[\1](\1)", fields[1])
+                        fields[1] = re.sub("((https?:\/\/)?(www\.)?[-øæåØÆÅa-zA-Z0-9@:%._\+~#=]{2,256}\.[øæåØÆÅa-z]{2,6}([-a-zøæåØÆÅA-Z0-9@:%_\+.~#?&\/\/=]*))(?:[^\]]*\n)", r"[\1](\1)", fields[1])
                     infoTable.append((fields[0], fields[1]))
 
                 if "}}" in line:
