@@ -304,6 +304,7 @@ def refactor(s):
     result = s
     
     result = re.sub("\*([^ ])", r"* \1", result) # lists
+    result = re.sub(re.compile("(((?!(\* )|\n)^).*?\n)(\* )", re.DOTALL), r"\1\n* ", result) # lists newline
     result = re.sub("'''", "**", result) # emphasis
     result = re.sub("(?<!\[)\[([^ \[]+) ([^\]]+)\](?!\])", r"[\2](\1)", result) # weblinks
     result = re.sub("\[\[Bilde:(.+\..+)\|(\d+)px\|(.+)\|(.+)\|(.+)\]\]", r"[image:1 align:\3 width:\2]\n\t\5\n", result) # images
