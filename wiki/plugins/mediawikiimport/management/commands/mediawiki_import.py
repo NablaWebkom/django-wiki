@@ -345,6 +345,7 @@ def refactor(s):
     result = re.sub("\[\[(Kategori|Category).*\]\]", "", result)
     result = re.sub(re.compile("\<del\>(.*)\<\/del\>", re.DOTALL), r"(Utdatert) \1", result)
     result = re.sub("{{Boklink\|forfatter=([^|]+)\|tittel=([^}]+)}}", r"[\1: *\2*](wiki:\1: \2)", result) # booklinks, TODO fix
+    result = re.sub("\[\[(.*?)\]\]", r"[](wiki:\1)", result)
 
     # info table
     lines = result.split("\n")
