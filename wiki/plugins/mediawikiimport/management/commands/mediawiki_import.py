@@ -3,8 +3,6 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 from django.core.management.base import BaseCommand, CommandError
-import getpass
-
 
 from wiki.models.article import ArticleRevision, ArticleForObject, Article
 from wiki.models.urlpath import URLPath
@@ -63,13 +61,7 @@ class Command(BaseCommand):
         except IndexError:
             raise CommandError('You need to provide an username')
 
-        try:
-            api_password = args[2]
-        except IndexError:
-            api_password = ""
-
-            if not api_password:
-                raise CommandError('You need to provide a password')
+        api_password = ""
 
         return (api_url, api_username, api_password)
 
@@ -268,7 +260,7 @@ class Command(BaseCommand):
         api_url, api_username, api_password = self.get_params(args)
 
         site = wikitools.wiki.Wiki(api_url)
-        site.login(api_username, api_password)
+        site.login(api_username, "dummy")
 
         pages = self.get_all_pages(wikitools.api, site)
 
