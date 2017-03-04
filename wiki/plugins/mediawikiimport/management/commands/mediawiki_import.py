@@ -66,7 +66,7 @@ class Command(BaseCommand):
         try:
             api_password = args[2]
         except IndexError:
-            api_password = getpass.getpass('Please enter the API password: ')
+            api_password = ""
 
             if not api_password:
                 raise CommandError('You need to provide a password')
