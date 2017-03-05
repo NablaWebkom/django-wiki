@@ -105,8 +105,6 @@ class Command(BaseCommand):
             replace_existing,
             ):
 
-        import pypandoc
-
         from wikitools.pagelist import listFromQuery
 
 
@@ -176,11 +174,6 @@ class Command(BaseCommand):
             print("Couldn't find user. Something is weird.")
 
         article_revision = ArticleRevision()
-        '''article_revision.content = pypandoc.convert(
-            history_page['*'],
-            'md',
-            'mediawiki')
-            '''
         article_revision.content = refactor(page.getWikiText())
         article_revision.title = title
         article_revision.user = user
@@ -195,17 +188,6 @@ class Command(BaseCommand):
         # Updated lastest content WITH expended templates
         # TODO ? Do that for history as well ?
         
-        '''article_revision.content = pypandoc.convert(
-            striptags(
-                page.getWikiText(
-                    True,
-                    True)).replace(
-                '__NOEDITSECTION__',
-                '').replace(
-                    '__NOTOC__',
-                    ''),
-            'md',
-            'mediawiki')'''
         article_revision.save()
 
         article.save()
@@ -271,11 +253,6 @@ class Command(BaseCommand):
         except ImportError:
             raise CommandError(
                 'You need to install wikitools to use this command !')
-
-        try:
-            import pypandoc
-        except ImportError:
-            raise CommandError('You need to install pypandoc')
 
         user_matching = {}
 
